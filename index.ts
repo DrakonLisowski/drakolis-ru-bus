@@ -5,7 +5,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import {createConnection, getConnectionOptions} from 'typeorm';
 import 'reflect-metadata';
-import { LogSQLWrapper, LogHTTP } from './src/Utilities/Log';
+import { LogSQLWrapper, LogHTTP, LogSocket } from './src/Utilities/Log';
 
 getConnectionOptions().then(async (connectionOptions) => {
   return createConnection(Object.assign(connectionOptions, {logger: new LogSQLWrapper()}))
@@ -56,6 +56,10 @@ class BusServer {
       pingTimeout: 5000,
       cookie: false,
     });
+
+    this.io.on('connection', (soc) => {
+      LogSocket.debug(`Connected: ${soc.id}`);
+    });
   }
 
   private listen(): void {
@@ -67,3 +71,61 @@ class BusServer {
 
 const app = new BusServer().getApp();
 export { app };
+
+/*
+### Authorize ###
+{
+  command: {
+    type: 'authorize',
+    version: '1.0',
+    service: 'Bus'
+  },
+  meta: {...},
+  data: {
+    name: 'SomeService',
+    key: '123'
+  }
+}
+
+### Request ###
+{
+  command: {
+    type: 'request',
+    version: '1.0',
+    service: 'SomeService'
+  },
+  meta: {...},
+  data: {...}
+}
+### Response ###
+{
+  command: {
+    type: 'response',
+    version: '1.0',
+    service: 'bus'
+  },
+  meta: {...}, // copied from request (can be used for verification on end)
+  data: {...}
+}
+
+### Subscribe ###
+{
+  command: {
+    type: 'subscribe',
+    version: '1.0',
+    service: 'SomeService'
+  },
+  meta: {...},
+  data: {...}
+}
+### Event ###
+{
+  command: {
+    type: 'authorize',
+    version: '1.0',
+    service: 'SomeService'
+  },
+  meta: {}, // always empty
+  data: {...}
+}
+*/
