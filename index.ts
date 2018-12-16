@@ -3,7 +3,7 @@ import express from 'express';
 import socketIo from 'socket.io';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import {createConnection, getConnectionOptions} from "typeorm";
+import {createConnection, getConnectionOptions} from 'typeorm';
 import 'reflect-metadata';
 import { LogSQLWrapper, LogHTTP } from './src/Utilities/Log';
 
