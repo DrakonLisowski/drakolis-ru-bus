@@ -53,4 +53,7 @@ export class Log {
     });
   }
 
+  public getLogger = () => {
+    return this.logger;
+  }
 }

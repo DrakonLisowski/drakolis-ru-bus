@@ -6,6 +6,7 @@ import cors from 'cors';
 import { Schema } from 'jsonschema';
 import {createConnection, getConnectionOptions} from 'typeorm';
 import 'reflect-metadata';
+import { Log } from './src/Utilities/Log';
 import { LogSQL } from './src/Utilities/LogSQL';
 import { LogHTTP } from './src/Utilities/LogHTTP';
 
@@ -52,16 +53,54 @@ class BusServer {
   }
 
   private sockets(): void {
+    const LogSocket = new Log('Socket').getLogger();
+    // @ts-ignore
     this.io = socketIo(this.server, {
-      serveClient: false,
+      serveClient: true,
       // below are engine.IO options
       pingInterval: 10000,
       pingTimeout: 5000,
       cookie: false,
+      logger: LogSocket,
     });
-
+    // logging
     this.io.on('connection', (soc) => {
-      // LogSocket.debug(`Connected: ${soc.id}`);
+      LogSocket.debug(`<${soc.id}> Connected`);
+
+      soc.on('connect', () => {
+        LogSocket.debug(`<${soc.id}> Connected`);
+      });
+
+      soc.on('connect_error', (err) => {
+        LogSocket.debug(`<${soc.id}> Failed to connect: ${JSON.stringify(err)}`);
+      });
+      soc.on('connect_timeout', (err) => {
+        LogSocket.debug(`<${soc.id}> Connection timed out: ${JSON.stringify(err)}`);
+      });
+
+      soc.on('error', (err) => {
+        LogSocket.debug(`<${soc.id}> Error: ${JSON.stringify(err)}`);
+      });
+
+      soc.on('disconnect', (reason) => {
+        if (reason === 'io server disconnect') {
+          LogSocket.debug(`<${soc.id}> Disconnected by server`);
+        }
+        LogSocket.debug(`<${soc.id}> Disconnected from server`);
+      });
+
+      soc.on('reconnect', (attempt) => {
+        LogSocket.debug(`<${soc.id}> Reconnected on attempt #${attempt}`);
+      });
+      soc.on('reconnecting', (attempt) => {
+        LogSocket.debug(`<${soc.id}> Reconnecting attempt #${attempt}`);
+      });
+      soc.on('reconnect_error', (err) => {
+        LogSocket.debug(`<${soc.id}> Failed to reconnect: ${JSON.stringify(err)}`);
+      });
+      soc.on('reconnect_failed', (attempt) => {
+        LogSocket.debug(`<${soc.id}> Reconnect failed`);
+      });
     });
   }
 
