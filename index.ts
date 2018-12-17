@@ -8,6 +8,8 @@ import 'reflect-metadata';
 import { Log } from './src/Utilities/Log';
 import { LogSQL } from './src/Utilities/LogSQL';
 import { LogHTTP } from './src/Utilities/LogHTTP';
+import { initBusCommands } from './src/CommandExecutor';
+import { authorizationCheck } from './src/authorizationCheck';
 
 getConnectionOptions().then(async (connectionOptions) => {
   return createConnection(Object.assign(connectionOptions, {logger: new LogSQL()}))
@@ -66,19 +68,30 @@ class BusServer {
     this.io.on('connection', (soc) => {
       LogSocket.debug(`<${soc.id}> Connected`);
 
+      initBusCommands(soc);
+
+      authorizationCheck(soc)
+        .then((serviceName) => {
+          LogSocket.info(`<${soc.id}> Has authorized as '${serviceName}'`);
+        })
+        .catch((reason) => {
+          soc.disconnect();
+          LogSocket.warning(`<${soc.id}> Failed to authorize in time, reason: ${reason || 'timeout'}`);
+        });
+
       soc.on('connect', () => {
         LogSocket.debug(`<${soc.id}> Connected`);
       });
 
       soc.on('connect_error', (err) => {
-        LogSocket.debug(`<${soc.id}> Failed to connect: ${JSON.stringify(err)}`);
+        LogSocket.error(`<${soc.id}> Failed to connect: ${JSON.stringify(err)}`);
       });
       soc.on('connect_timeout', (err) => {
-        LogSocket.debug(`<${soc.id}> Connection timed out: ${JSON.stringify(err)}`);
+        LogSocket.warning(`<${soc.id}> Connection timed out: ${JSON.stringify(err)}`);
       });
 
       soc.on('error', (err) => {
-        LogSocket.debug(`<${soc.id}> Error: ${JSON.stringify(err)}`);
+        LogSocket.error(`<${soc.id}> Error: ${JSON.stringify(err)}`);
       });
 
       soc.on('disconnect', (reason) => {
@@ -95,10 +108,10 @@ class BusServer {
         LogSocket.debug(`<${soc.id}> Reconnecting attempt #${attempt}`);
       });
       soc.on('reconnect_error', (err) => {
-        LogSocket.debug(`<${soc.id}> Failed to reconnect: ${JSON.stringify(err)}`);
+        LogSocket.error(`<${soc.id}> Failed to reconnect: ${JSON.stringify(err)}`);
       });
       soc.on('reconnect_failed', (attempt) => {
-        LogSocket.debug(`<${soc.id}> Reconnect failed`);
+        LogSocket.warning(`<${soc.id}> Reconnect failed`);
       });
     });
   }
