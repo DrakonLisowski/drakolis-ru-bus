@@ -3,7 +3,6 @@ import express from 'express';
 import socketIo from 'socket.io';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { Schema } from 'jsonschema';
 import {createConnection, getConnectionOptions} from 'typeorm';
 import 'reflect-metadata';
 import { Log } from './src/Utilities/Log';
@@ -115,20 +114,6 @@ const app = new BusServer().getApp();
 export { app };
 
 /*
-### Authorize ###
-{
-  command: {
-    type: 'authorize',
-    version: '1.0',
-    service: 'Bus'
-  },
-  meta: {...},
-  data: {
-    name: 'SomeService',
-    key: '123'
-  }
-}
-
 ### Request ###
 {
   command: {
