@@ -7,6 +7,7 @@ import { Schema } from 'jsonschema';
 import {createConnection, getConnectionOptions} from 'typeorm';
 import 'reflect-metadata';
 import { LogSQL } from './src/Utilities/LogSQL';
+import { LogHTTP } from './src/Utilities/LogHTTP';
 
 getConnectionOptions().then(async (connectionOptions) => {
   return createConnection(Object.assign(connectionOptions, {logger: new LogSQL()}))
@@ -39,6 +40,7 @@ class BusServer {
       extended: true,
     }));
     this.app.use(cors());
+    this.app.use(new LogHTTP().getMiddleware());
   }
 
   private createServer(): void {

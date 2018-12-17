@@ -26,6 +26,7 @@ export class Log {
           format: format.combine(
             format.label({ label }),
             format.timestamp(),
+            format.json(),
             format.colorize({ level: true }),
             messageFormat,
           ),
@@ -36,10 +37,10 @@ export class Log {
   }
 
   protected logger: Logger;
-  private label: string = 'Unknown';
   private messageFormat = format.printf((info) => {
     return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;
   });
+  private label: string = 'Unknown';
 
   constructor(label: string) {
     this.label = label;
@@ -51,6 +52,5 @@ export class Log {
       exitOnError: false, // do not exit on handled exceptions
     });
   }
-
 
 }

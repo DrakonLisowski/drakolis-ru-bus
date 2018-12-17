@@ -10,6 +10,7 @@
   "author": "Drakolis",
   "license": "ISC",
   "dependencies": {
+    "@types/app-root-path": "^1.2.4",
     "@types/cors": "^2.8.4",
     "@types/express": "^4.16.0",
     "@types/jsonschema": "^1.1.1",
@@ -20,6 +21,7 @@
     "chalk": "^2.4.1",
     "cors": "^2.8.5",
     "express": "^4.16.4",
+    "express-winston": "^3.0.1",
     "jsonschema": "^1.2.4",
     "metro4": "^4.2.30",
     "moment": "^2.23.0",
@@ -27,13 +29,12 @@
     "reflect-metadata": "^0.1.12",
     "socket.io": "^2.2.0",
     "sqlite3": "^4.0.4",
-    "ts-node": "^7.0.1",
-    "tslint": "^5.11.0",
     "typeorm": "^0.2.9",
     "typescript": "^3.2.2",
     "winston": "^3.1.0"
   },
   "devDependencies": {
-    "@types/app-root-path": "^1.2.4"
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0"
   }
 }
