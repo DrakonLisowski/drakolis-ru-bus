@@ -15,6 +15,7 @@
     "@types/jsonschema": "^1.1.1",
     "@types/node": "^10.12.15",
     "@types/socket.io": "^2.1.2",
+    "app-root-path": "^2.1.0",
     "body-parser": "^1.18.3",
     "chalk": "^2.4.1",
     "cors": "^2.8.5",
@@ -30,7 +31,9 @@
     "tslint": "^5.11.0",
     "typeorm": "^0.2.9",
     "typescript": "^3.2.2",
-    "typescript-logger": "^1.1.1",
-    "typescript-logging": "^0.6.3"
+    "winston": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/app-root-path": "^1.2.4"
   }
 }

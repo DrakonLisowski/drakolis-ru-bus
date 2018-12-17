@@ -3,12 +3,13 @@ import express from 'express';
 import socketIo from 'socket.io';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import { Schema } from 'jsonschema';
 import {createConnection, getConnectionOptions} from 'typeorm';
 import 'reflect-metadata';
-import { LogSQLWrapper, LogHTTP, LogSocket } from './src/Utilities/Log';
+import { LogSQL } from './src/Utilities/LogSQL';
 
 getConnectionOptions().then(async (connectionOptions) => {
-  return createConnection(Object.assign(connectionOptions, {logger: new LogSQLWrapper()}))
+  return createConnection(Object.assign(connectionOptions, {logger: new LogSQL()}))
 });
 
 class BusServer {
@@ -58,13 +59,13 @@ class BusServer {
     });
 
     this.io.on('connection', (soc) => {
-      LogSocket.debug(`Connected: ${soc.id}`);
+      // LogSocket.debug(`Connected: ${soc.id}`);
     });
   }
 
   private listen(): void {
       this.server.listen(this.port, () => {
-          LogHTTP.info(`Running server on port ${this.port}`);
+          // LogHTTP.info(`Running server on port ${this.port}`);
       });
   }
 }
