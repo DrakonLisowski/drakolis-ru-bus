@@ -3,6 +3,10 @@ import { Log } from './Log';
 
 export class LogSQL extends Log implements Logger {
 
+  constructor() {
+    super('SQL');
+  }
+
   public logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner) {
     this.logger.debug(`Executed ${query} with parameters: ${parameters}`);
   }

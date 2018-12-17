@@ -1,52 +1,56 @@
-import * as winston from 'winston';
+import { format, Logger, createLogger, transports } from 'winston';
 import * as appRoot from 'app-root-path';
-
-const myFormat = winston.format.printf((info) => {
-  return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;
-});
-
-const options = {
-  file: {
-    level: 'info',
-    filename: `${appRoot}/logs/app.log`,
-    handleExceptions: true,
-    maxsize: 5242880, // 5MB
-    maxFiles: 5,
-    format: winston.format.combine(
-      winston.format.label({ label: 'right meow!' }),
-      winston.format.timestamp(),
-      myFormat,
-    ),
-  },
-  console: {
-    level: 'debug',
-    handleExceptions: true,
-    format: winston.format.combine(
-      winston.format.label({ label: 'right meow!' }),
-      wile(options.file),
-      new winston.transports.Console(options.console),
-    ],
-    exitOnError: false, // do nston.format.timestamp(),
-      winston.format.colorize({ level: true }),
-      myFormat,
-    ),
-  },
-};
+import { Format } from 'logform';
 
 export class Log {
 
-  protected logger: winston.Logger;
+  private static optionsConstructor(type: 'file' | 'console', label: string, messageFormat: Format) {
+    switch (type) {
+      case 'file':
+        return {
+          level: 'info',
+          filename: `${appRoot}/logs/app.log`,
+          handleExceptions: true,
+          maxsize: 5242880, // 5MB
+          maxFiles: 5,
+          format: format.combine(
+            format.label({ label }),
+            format.timestamp(),
+            messageFormat,
+          ),
+        };
+      case 'console':
+        return {
+          level: 'debug',
+          handleExceptions: true,
+          format: format.combine(
+            format.label({ label }),
+            format.timestamp(),
+            format.colorize({ level: true }),
+            messageFormat,
+          ),
+        };
+      default:
+        throw new Error('Not implemented!');
+    }
+  }
+
+  protected logger: Logger;
   private label: string = 'Unknown';
+  private messageFormat = format.printf((info) => {
+    return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;
+  });
 
   constructor(label: string) {
     this.label = label;
-    this.logger = winston.createLogger({
+    this.logger = createLogger({
       transports: [
-        new winston.transports.File(options.file),
-        new winston.transports.Console(options.console),
+        new transports.File(Log.optionsConstructor('file', label, this.messageFormat)),
+        new transports.Console(Log.optionsConstructor('console', label, this.messageFormat)),
       ],
       exitOnError: false, // do not exit on handled exceptions
     });
   }
+
 
 }
