@@ -8,8 +8,7 @@ import 'reflect-metadata';
 import { Log } from './src/Utilities/Log';
 import { LogSQL } from './src/Utilities/LogSQL';
 import { LogHTTP } from './src/Utilities/LogHTTP';
-import { initBusCommands } from './src/CommandExecutor';
-import { authorizationCheck } from './src/authorizationCheck';
+import {AUTHORIZE} from './src/Commands';
 
 getConnectionOptions().then(async (connectionOptions) => {
   return createConnection(Object.assign(connectionOptions, {logger: new LogSQL()}))
@@ -64,19 +63,17 @@ class BusServer {
       cookie: false,
       logger: LogSocket,
     });
-    // logging
+
     this.io.on('connection', (soc) => {
       LogSocket.debug(`<${soc.id}> Connected`);
 
-      initBusCommands(soc);
-
-      authorizationCheck(soc)
+      AUTHORIZE.initHandler(soc)
         .then((serviceName) => {
           LogSocket.info(`<${soc.id}> Has authorized as '${serviceName}'`);
         })
         .catch((reason) => {
           soc.disconnect();
-          LogSocket.warning(`<${soc.id}> Failed to authorize in time, reason: ${reason || 'timeout'}`);
+          LogSocket.warn(`<${soc.id}> Failed to authorize, reason: ${reason || 'Unknown'}`);
         });
 
       soc.on('connect', () => {

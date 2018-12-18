@@ -1,4 +1,7 @@
+import { Socket } from 'socket.io';
+
 export interface Command {
-    getEventName(): string;
+    eventName: string;
     isValid(object: object): boolean;
+    initHandler(socket: Socket): Promise<string>;
 }

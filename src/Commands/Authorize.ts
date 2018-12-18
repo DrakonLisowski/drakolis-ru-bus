@@ -1,15 +1,13 @@
 import { validate } from 'jsonschema';
+import { Socket } from 'socket.io';
 import { Command } from './Command';
 import { Log } from '../Utilities/Log';
-import { formatValidatorErrors } from '../Formatters';
+import { formatValidatorErrors, capitalize } from '../Utilities/Formatters';
 
 export class AuthorizeCommand implements Command {
 
-  private myLogger = new Log(`Authorize`).getLogger();
-
-  public getEventName(): string {
-    return 'authorize';
-  }
+  public eventName = 'authorize';
+  private myLogger = new Log(capitalize(this.eventName)).getLogger();
 
   public isValid(object: object): boolean {
     const verify = validate(object, {
@@ -28,11 +26,29 @@ export class AuthorizeCommand implements Command {
     });
 
     if (verify.valid) {
-      return verify.valid;
+      return true;
     } else {
       this.myLogger.error(`Request ${object} is invalid: ${formatValidatorErrors(verify.errors)}`);
+      return false;
     }
   }
 
+  public initHandler(socket: Socket): Promise<string> {
+    return new Promise((res, rej) => {
+        socket.on(
+            this.eventName,
+            (data) => {
+              if (!this.isValid(data)) {
+                rej('Validation error');
+              }
+              res('UndefinedService');
+            },
+        );
+        setTimeout(
+            () => { rej('Timeout'); },
+            5 * 1000,
+        );
+    });
+  }
 
 }
